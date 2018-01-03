@@ -1,0 +1,27 @@
+{
+  "name": "lesha888/RedisAbstract",
+  "description": "Redis abstraction for php",
+  "license": "WTFPL",
+  "authors": [
+    {
+      "name": "Alex"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "RedisAbstract\\": "src"
+    }
+  },
+  "require": {
+    "php": "^7.0",
+    "ext-redis": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~4.0 || ~5.0"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Tests\\": "tests/"
+    }
+  }
+}
