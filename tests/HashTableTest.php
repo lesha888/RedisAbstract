@@ -50,6 +50,7 @@ class HashTableTest extends AbstractTestCase
         foreach ($set as $item => $value) {
             $this->assertTrue($item === 'test' || $item === 'test2');
         }
+        $this->assertTrue(isset($set['test']));
         unset($set['test']);
         $this->assertCount(1, $set);
         $set->clear();

@@ -14,15 +14,13 @@ class HashTableJsonArrayTest extends AbstractTestCase
      */
     public function testBasics()
     {
-        $redis = $this->redis;
-
         $data = [
             'one' => [1.40],
             'two' => ['price' => 2.40],
             'three' => ['null' => null, 'false' => false, 'true' => true, '1' => 1, '0' => 0, 'string' => 'some_text'],
             'four' => null,
         ];
-        $set = new HashTableJsonArray('TestHash:'.uniqid('', true), $redis);
+        $set = new HashTableJsonArray('TestHash:'.uniqid('', true), $this->redis);
 
         foreach ($data as $key => $value) {
             $this->assertTrue($set->set($key, $value));
@@ -33,6 +31,25 @@ class HashTableJsonArrayTest extends AbstractTestCase
         $this->assertEquals(count($data), count($set));
         $this->assertEquals(count($data), $set->getCount());
         $this->assertEquals(count($data), $set->getCount(true));
+
+    }
+
+    /**
+     * @expectedException \RedisAbstract\Exception\LogicException
+     */
+    public function testIncrement()
+    {
+        $set = new HashTableJsonArray('TestHash:'.uniqid('', true), $this->redis);
+        $set->increment('key');
+    }
+
+    /**
+     * @expectedException \RedisAbstract\Exception\LogicException
+     */
+    public function testIncrementByFloat()
+    {
+        $set = new HashTableJsonArray('TestHash:'.uniqid('', true), $this->redis);
+        $set->incrementByFloat('key', 0.1);
 
     }
 }

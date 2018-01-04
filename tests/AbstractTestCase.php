@@ -16,6 +16,6 @@ abstract class AbstractTestCase extends TestCase
     {
         $this->redis = new Redis();
         $this->redis->connect('localhost');
+        $this->assertEquals('+PONG', $this->redis->ping());
     }
-
 }
