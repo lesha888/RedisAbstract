@@ -7,11 +7,18 @@ use RedisAbstract\Serializer\SerializerInterface;
 
 trait SerializebleTrait
 {
-
     /**
      * @var SerializerInterface
      */
     protected $serializer;
+
+    /**
+     * @param SerializerInterface $serializer
+     */
+    public function setSerializer(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
 
     /**
      * @param $value
@@ -40,14 +47,36 @@ trait SerializebleTrait
     }
 
     /**
-     * @param SerializerInterface $serializer
-     * @return self
+     * @param $array
+     * @return mixed
      */
-    protected function setSerializer(SerializerInterface $serializer): self
+    public function serializeMany(array $array)
     {
-        $this->serializer = $serializer;
+        if ($this->serializer) {
+            foreach ($array as $key => $value) {
+                $array[$key] = $this->serializer->serialize($value);
+            }
+        }
 
-        return $this;
+        return $array;
+    }
+
+    /**
+     * @param $array
+     * @return mixed
+     */
+    public function deserializeMany($array)
+    {
+        if ($array === true || $array === false) {
+            return $array;
+        }
+        if ($this->serializer) {
+            foreach ($array ?? [] as $key => $value) {
+                $array[$key] = $this->serializer->deserialize($value);
+            }
+        }
+
+        return $array;
     }
 
 }

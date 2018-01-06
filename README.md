@@ -1,4 +1,9 @@
 # RedisAbstract
+
+Abstraction for redis with : 
+- custom serialization
+
+
 [![Build Status](https://travis-ci.org/lesha888/RedisAbstract.svg?branch=master)](https://travis-ci.org/lesha888/RedisAbstract)
 
 [![Downloads this Month](https://img.shields.io/packagist/dm/lesha888/redis-abstract.svg)](https://packagist.org/packages/lesha888/redis-abstract)

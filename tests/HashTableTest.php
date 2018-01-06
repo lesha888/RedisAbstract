@@ -8,8 +8,6 @@ use RedisAbstract\HashTable;
 
 /**
  * Tests for the {@link RedisAbstract\Hash} class
- * @author Charles Pick
- * @package packages.redis.tests
  */
 class HashTableTest extends AbstractTestCase
 {
@@ -31,6 +29,12 @@ class HashTableTest extends AbstractTestCase
         $this->assertTrue($set->remove('carrots'));
         $this->assertFalse($set->remove('carrots'));
         $this->assertEquals(3, $set->getCount());
+        $set->clear();
+        $redis->set($set->getName(),'stub');
+        $this->assertFalse($set->remove('carrots'));
+        $this->assertFalse($set->set('key','value'));
+
+
         $set->clear();
         $this->assertEquals(0, $set->getCount());
     }
@@ -68,6 +72,8 @@ class HashTableTest extends AbstractTestCase
         $this->assertSame($value, (string)$set->get($key));
         $this->assertFalse($set->setNx($key, uniqid('', true)));
         $this->assertSame($value, (string)$set->get($key));
+        $set->clear();
+
     }
 
     /**
@@ -83,7 +89,7 @@ class HashTableTest extends AbstractTestCase
         $this->assertSame('3', (string)$set->get($key));
         $set->increment($key, -10);
         $this->assertSame('-7', (string)$set->get($key));
-
+        $set->clear();
     }
 
     /**

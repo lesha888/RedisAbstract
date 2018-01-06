@@ -2,6 +2,7 @@
 
 namespace RedisAbstract;
 
+use RedisAbstract\Exception\LogicException;
 
 /**
  * Represents a persistent hash stored in redis.
@@ -13,8 +14,6 @@ namespace RedisAbstract;
  */
 class HashTable extends IterableEntity
 {
-    use SerializebleTrait;
-
     /**
      * Set an item to the hash
      * @param string $key the hash key
@@ -52,9 +51,13 @@ class HashTable extends IterableEntity
      * @param $key
      * @param int $byAmount
      * @return int
+     * @throws Exception\LogicException
      */
     public function increment(string $key, $byAmount = 1): int
     {
+        if ($this->serializer) {
+            throw new LogicException('Method '.__METHOD__.' forbidden');
+        }
         $this->clearState();
 
         return $this->redis->hIncrBy($this->name, $key, $byAmount);
@@ -64,9 +67,14 @@ class HashTable extends IterableEntity
      * @param string $key
      * @param int $byAmount
      * @return string
+     * @throws Exception\LogicException
      */
     public function incrementByFloat(string $key, $byAmount): string
     {
+        if ($this->serializer) {
+            throw new LogicException('Method '.__METHOD__.' forbidden');
+        }
+
         $this->clearState();
 
         return $this->redis->hIncrByFloat($this->name, $key, $byAmount);
@@ -78,7 +86,7 @@ class HashTable extends IterableEntity
      * @param string $key the hash key to remove
      * @return bool true if the item was removed, otherwise false
      */
-    public function remove(string $key): bool
+    public function remove($key): bool
     {
         if (!$this->redis->hDel($this->name, $key)) {
             return false;
@@ -144,58 +152,9 @@ class HashTable extends IterableEntity
     protected function pullData()
     {
         $this->_data = $this->redis->hGetAll($this->name);
-        $this->_count = \count((array)$this->_data);
+        $this->_count = \count($this->_data);
         if ($this->_data) {
-            $this->_data = array_map([$this, 'deserialize'], $this->_data);
+            $this->_data = $this->deserializeMany($this->_data);
         }
-    }
-
-    /**
-     * Returns whether there is an item at the specified offset.
-     * This method is required by the interface ArrayAccess.
-     * @param integer $offset the offset to check on
-     * @return boolean
-     * @throws \Exception
-     */
-    public function offsetExists($offset)
-    {
-        return isset($this->getData()[$offset]);
-    }
-
-    /**
-     * Returns the item at the specified offset.
-     * This method is required by the interface ArrayAccess.
-     * @param integer $offset the offset to retrieve item.
-     * @return mixed the item at the offset
-     * @throws \Exception
-     */
-    public function offsetGet($offset)
-    {
-        $data = $this->getData();
-
-        return $data[$offset] ?? null;
-    }
-
-    /**
-     * Sets the item at the specified offset.
-     * This method is required by the interface ArrayAccess.
-     * @param integer $offset the offset to set item
-     * @param mixed $item the item value
-     * @throws \Exception
-     */
-    public function offsetSet($offset, $item)
-    {
-        $this->set($offset, $item);
-    }
-
-    /**
-     * Unsets the item at the specified offset.
-     * This method is required by the interface ArrayAccess.
-     * @param integer $offset the offset to unset item
-     * @throws \Exception
-     */
-    public function offsetUnset($offset)
-    {
-        $this->remove($offset);
     }
 }

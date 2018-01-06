@@ -4,6 +4,9 @@ namespace Tests;
 
 use PHPUnit\Framework\TestCase;
 use Redis;
+use RedisAbstract\Entity;
+use RedisAbstract\Factory;
+use RedisAbstract\Serializer\SerializerInterface;
 
 abstract class AbstractTestCase extends TestCase
 {
@@ -16,6 +19,33 @@ abstract class AbstractTestCase extends TestCase
     {
         $this->redis = new Redis();
         $this->redis->connect('localhost');
+        $this->redis->setOption(Redis::OPT_PREFIX, 'tests_redis_abstract:');
         $this->assertEquals('+PONG', $this->redis->ping());
     }
+
+    public function getConnection(): Redis
+    {
+        return $this->redis;
+    }
+
+    public function getFactory(): Factory
+    {
+        return new Factory($this->redis);
+    }
+
+    /**
+     * @param string $class
+     * @param string|null $name
+     * @param SerializerInterface|null $serializer
+     * @return $class
+     */
+    public function makeEntity(string $class, string $name = null, SerializerInterface $serializer = null): Entity
+    {
+        if ($name === null) {
+            $name = 'Entity:'.uniqid('', true);
+        }
+
+        return new $class($name, $this->redis, $serializer);
+    }
+
 }

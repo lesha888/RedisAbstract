@@ -2,8 +2,7 @@
 
 namespace RedisAbstract\Exception;
 
-
-class InvalidArgument extends RedisException
+class NotImplemented extends LogicException
 {
 
 }

@@ -3,10 +3,13 @@
 namespace RedisAbstract;
 
 use Redis;
-use RedisAbstract\Exception\InvalidArgument;
+use RedisAbstract\Exception\InvalidArgumentException;
+use RedisAbstract\Serializer\SerializerInterface;
 
 abstract class Entity
 {
+    use SerializebleTrait;
+
     /**
      * The name of the redis entity (key)
      * @var string
@@ -23,16 +26,20 @@ abstract class Entity
      * Constructor
      * @param string $name the name of the entity
      * @param Redis $redis the redis connection to use with this entity
-     * @throws InvalidArgument
+     * @param SerializerInterface $serializer
+     * @throws InvalidArgumentException
      */
-    public function __construct(string $name, Redis $redis = null)
+    public function __construct(string $name, Redis $redis = null, SerializerInterface $serializer = null)
     {
         if ($name === '') {
-            throw new InvalidArgument('Name is empty');
+            throw new InvalidArgumentException('Name is empty');
         }
         $this->name = $name;
-        if ($redis instanceof Redis) {
+        if ($redis) {
             $this->setRedis($redis);
+        }
+        if ($serializer) {
+            $this->setSerializer($serializer);
         }
     }
 
@@ -57,6 +64,19 @@ abstract class Entity
     }
 
     /**
+     * Returns the remaining time to live of a key that has a timeout, in seconds.
+     * The command returns -2 if the key does not exist.
+     * The command returns -1 if the key exists but has no associated expire.
+     * @return  int     the time left to live in seconds.
+     * @link    http://redis.io/commands/ttl
+     * @example $redis->ttl('key');
+     */
+    public function ttl(): int
+    {
+        return $this->redis->ttl($this->name);
+    }
+
+    /**
      * Verify if the specified key exists
      * @return bool
      */
@@ -67,9 +87,9 @@ abstract class Entity
 
 
     /**
-     * @return int
+     * @return bool
      */
-    public function delete(): int
+    public function delete(): bool
     {
         return $this->redis->delete($this->name);
     }

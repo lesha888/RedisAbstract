@@ -9,8 +9,6 @@ use IteratorAggregate;
 
 /**
  * A base class for iterable redis entities (lists, hashes, sets and sorted sets)
- * @author Charles Pick
- * @package packages.redis
  */
 abstract class IterableEntity extends Entity implements IteratorAggregate, ArrayAccess, Countable
 {
@@ -29,12 +27,11 @@ abstract class IterableEntity extends Entity implements IteratorAggregate, Array
     /**
      * Clear internal state
      */
-    protected function clearState()
+    public function clearState()
     {
         $this->_count = null;
         $this->_data = null;
     }
-
 
     /**
      * Returns an iterator for traversing the items in the set.
@@ -85,7 +82,7 @@ abstract class IterableEntity extends Entity implements IteratorAggregate, Array
      * Gets the number of items in the entity
      * @return integer the number of items in the entity
      */
-    abstract public function getCount():int;
+    abstract public function getCount(): int;
 
     /**
      * Gets all the members in the entity
@@ -110,11 +107,83 @@ abstract class IterableEntity extends Entity implements IteratorAggregate, Array
      */
     public function clear(): IterableEntity
     {
-        $this->_data = null;
-        $this->_count = null;
+        $this->clearState();
         $this->redis->delete($this->name);
 
         return $this;
+    }
+
+    abstract public function remove($key);
+
+    abstract public function set(string $key, $value);
+
+    public function __set($key, $value)
+    {
+        $this->set($key, $value);
+    }
+
+    public function __unset($key)
+    {
+        $this->remove($key);
+    }
+
+    public function __get($key)
+    {
+        return $this->getData()[$key] ?? null;
+    }
+
+    public function __isset($key)
+    {
+        return isset($this->getData()[$key]);
+
+    }
+
+
+    /**
+     * Returns whether there is an item at the specified offset.
+     * This method is required by the interface ArrayAccess.
+     * @param integer $offset the offset to check on
+     * @return boolean
+     * @throws \Exception
+     */
+    public function offsetExists($offset)
+    {
+        return $this->__isset($offset);
+    }
+
+    /**
+     * Returns the item at the specified offset.
+     * This method is required by the interface ArrayAccess.
+     * @param integer $offset the offset to retrieve item.
+     * @return mixed the item at the offset
+     * @throws \Exception
+     */
+    public function offsetGet($offset)
+    {
+        return $this->__get($offset);
+    }
+
+    /**
+     * Sets the item at the specified offset.
+     * This method is required by the interface ArrayAccess.
+     * @param integer $offset the offset to set item
+     * @param mixed $item the item value
+     * @throws \Exception
+     */
+    public function offsetSet($offset, $item)
+    {
+        $this->__set($offset, $item);
+    }
+
+    /**
+     * Unsets the item at the specified offset.
+     * This method is required by the interface ArrayAccess.
+     * @param integer $offset the offset to unset item
+     * @throws \Exception
+     */
+    public function offsetUnset($offset)
+    {
+        $this->__unset($offset);
     }
 
 }

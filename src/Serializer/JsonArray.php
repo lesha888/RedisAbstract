@@ -1,4 +1,5 @@
 <?php
+
 namespace RedisAbstract\Serializer;
 
 use RedisAbstract\Exception\NotEncodableValueException;
