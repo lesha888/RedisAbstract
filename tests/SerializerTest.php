@@ -181,8 +181,8 @@ class SerializerTest extends AbstractTestCase
     {
         $list = new RedisList('TestHashTable:'.uniqid('', true), $this->redis);
         $this->redis->set($list->getName(), 'value');
-        $d = $list->range();
-        var_dump($d);
+        $list->range();
+        $list->delete();
     }
 
     /**

@@ -28,16 +28,11 @@ abstract class AbstractTestCase extends TestCase
         return $this->redis;
     }
 
-    public function getFactory(): Factory
-    {
-        return new Factory($this->redis);
-    }
-
     /**
      * @param string $class
      * @param string|null $name
      * @param SerializerInterface|null $serializer
-     * @return $class
+     * @return Entity
      */
     public function makeEntity(string $class, string $name = null, SerializerInterface $serializer = null): Entity
     {

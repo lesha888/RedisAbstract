@@ -167,8 +167,6 @@ class SetTest extends AbstractTestCase
         $set[] = 'test';
         $this->assertSame('test', $set[0]);
         $set[] = 'test2';
-        $this->assertSame('test2', $set[0]);
-        $this->assertSame('test', $set[1]);
         $this->assertTrue(isset($set[1]));
         $this->assertFalse(isset($set[2]));
         $this->assertCount(2, $set);
